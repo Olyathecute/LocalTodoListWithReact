@@ -3,13 +3,12 @@ import TodoList from './Todod/TodoList'
 import Context from './context'
 import Loader from './Loader'
 import Modal from './Modal/Modal'
+import { save, load } from './storage'
 
 const AddTodo = React.lazy(
   () =>
     new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(import('./Todod/AddTodo'))
-      }, 3000)
+      resolve(import('./Todod/AddTodo'))
     })
 )
 
@@ -18,41 +17,45 @@ function App() {
   const [loading, setLoading] = React.useState(true)
 
   useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
-      .then((response) => response.json())
-      .then((todos) => {
-        setTimeout(() => {
-          setTodos(todos)
-          setLoading(false)
-        }, 2000)
-      })
+    setTodos(load())
+    setLoading(false)
+    // fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
+    //   .then((response) => response.json())
+    //   .then((todos) => {
+    //     setTimeout(() => {
+    //       setTodos(todos)
+    //       setLoading(false)
+    //     }, 2000)
+    //   })
   }, [])
 
   function toggleTodo(id) {
-    setTodos(
-      todos.map((todo) => {
-        if (todo.id === id) {
-          todo.completed = !todo.completed
-        }
-        return todo
-      })
-    )
+    let newTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        todo.completed = !todo.completed
+      }
+      return todo
+    })
+    setTodos(newTodos)
+    save(newTodos)
   }
 
   function removeTodo(id) {
-    setTodos(todos.filter((todo) => todo.id !== id))
+    let newTodos = todos.filter((todo) => todo.id !== id)
+    setTodos(newTodos)
+    save(newTodos)
   }
 
   function addTodo(title) {
-    setTodos(
-      todos.concat([
-        {
-          title,
-          id: Date.now(),
-          completed: false
-        }
-      ])
-    )
+    let newTodos = todos.concat([
+      {
+        title,
+        id: Date.now(),
+        completed: false
+      }
+    ])
+    setTodos(newTodos)
+    save(newTodos)
   }
 
   return (
